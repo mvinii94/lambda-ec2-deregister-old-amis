@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     #PRINT THE PARAMETERS
     logger.info('Parameters received: {0}'.format(event))
     #GET THE DAYS PARAMETER TO USE AS RETENTION
-    days = event['retention']
+    days = float(event['retention'])
     #CALCULATE THE TIMESTAMP TO COMPARE TO CHECK IF THE AMI BACKUP IS OLD ENOUGH
     days_ago = datetime.now() - timedelta(days=int(days))
     logger.info('Timestamp with {0} day(s) ago to compare : {1}'.format(days,days_ago))

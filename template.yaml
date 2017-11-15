@@ -21,6 +21,7 @@ Resources:
       Handler: index.lambda_handler
       Runtime: python2.7
       Policies: AmazonEC2FullAccess
+      Timeout: 300
       CodeUri:
         Bucket: !Ref Bucket
         Key: !Ref FileKey
