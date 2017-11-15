@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Bucket:
+    Description: The S3 Bucket which contains the code zipped. Example -> MyBucketName
+    Type: String
+    Default: MyBucketName
+  FileKey:
+    Description: Key path for your code zipped. Example -> /path/myfile.zip
+    Type: String
+    Default: "myfile.zip"
+  RetentionPeriod:
+    Description: The amount of days to retain the AMIs. Example -> 5 (Means five days)
+    Type: String
+
+Resources:
+  CreateAMIasBackup:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.lambda_handler
+      Runtime: python2.7
+      Policies: AmazonEC2FullAccess
+      CodeUri:
+        Bucket: !Ref Bucket
+        Key: !Ref FileKey
+      Events:
+        Cron:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 day)
+            Input:
+              Fn::Join: [ "", [ "{", '"retention"', ":", '"', Ref: RetentionPeriod, '"', "}" ] ]
