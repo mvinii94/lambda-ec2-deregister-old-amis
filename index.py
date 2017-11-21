@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     #CREATE AMI_TAGS DICTIONARY
     ami_tags = {}
     #SEARCH AMI'S AND CHECK IF IT IS OLD ENOUGH IF IT IS, DELETES IT.s
-    snapshots = ec2.describe_snapshots(MaxResults=1000,OwnerIds=[account_id])['Snapshots']
+    snapshots = ec2.describe_snapshots(OwnerIds=[account_id])['Snapshots']
     for ami in amis['Images']:
         ami_tags.update( { ami['ImageId'] : tag['Value'] for tag in ami['Tags'] if tag['Key'] == 'CreationDate' } )
         #PRINT AMI_TAGS
