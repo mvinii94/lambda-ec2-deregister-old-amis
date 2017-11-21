@@ -27,7 +27,7 @@ The Lambda function will deregister Amazon Machine Images (AMI) from your AMIs w
 * Run the following command providing the bucket name and the S3 key name toof your file:
 
 ```
-aws cloudformation deploy --template-file template.yaml --stack-name lambda-ec2-deregister-old-amis --region us-east-1 --capabilities CAPABILITY_IAM --parameter-overrides Bucket=<MyBucketName> FileKey=lambda-ec2-deregister-old-amis.zip RetentionPeriod=5
+aws cloudformation deploy --template-file template.yaml --stack-name lambda-ec2-deregister-old-amis --region us-east-1 --capabilities CAPABILITY_NAMED_IAM --parameter-overrides Bucket=<MyBucketName> FileKey=lambda-ec2-deregister-old-amis.zip RetentionPeriod=5
 ```
 
 ## Authors

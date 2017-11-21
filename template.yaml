@@ -15,12 +15,50 @@ Parameters:
     Type: String
 
 Resources:
+  #LambdaRole
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: LogsPermission
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              Action:
+                - 'logs:CreateLogGroup'
+                - 'logs:CreateLogStream'
+                - 'logs:PutLogEvents'
+              Resource: 'arn:aws:logs:*:*:*'
+              Effect: Allow
+        - PolicyName: CreateAMIPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              Action:
+                - ec2:Describe*
+                - ec2:DeleteSnapshot
+                - ec2:DeregisterImage
+                - ec2:CreateTags
+              Resource: "*"
+              Effect: Allow
+
+  #Lambda Function
   CreateAMIasBackup:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.lambda_handler
       Runtime: python2.7
-      Policies: AmazonEC2FullAccess
+      Role: !GetAtt LambdaRole.Arn
       Timeout: 300
       CodeUri:
         Bucket: !Ref Bucket
@@ -31,4 +69,4 @@ Resources:
           Properties:
             Schedule: rate(1 day)
             Input:
-              Fn::Join: [ "", [ "{", '"retention"', ":", '"', Ref: RetentionPeriod, '"', "}" ] ]
+              Fn::Join: [ "", [ "{", '"retention"', ":", '"', Ref: RetentionPeriod, '"', ',', '"accountid"', ":", '"', Ref: 'AWS::AccountId', '"', "}" ] ]

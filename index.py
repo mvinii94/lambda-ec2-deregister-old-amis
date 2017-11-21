@@ -4,8 +4,9 @@ from datetime import datetime, timedelta
 
 
 ec2 = boto3.client('ec2')
+
 amis = ec2.describe_images(Filters=[ {'Name': 'tag:backup', 'Values': ['lambda-ec2-instance-backup']} ])
-snapshots = ec2.describe_snapshots(MaxResults=1000)['Snapshots']
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -16,12 +17,14 @@ def lambda_handler(event, context):
     logger.info('Parameters received: {0}'.format(event))
     #GET THE DAYS PARAMETER TO USE AS RETENTION
     days = float(event['retention'])
+    account_id = str(event['accountid'])
     #CALCULATE THE TIMESTAMP TO COMPARE TO CHECK IF THE AMI BACKUP IS OLD ENOUGH
     days_ago = datetime.now() - timedelta(days=int(days))
     logger.info('Timestamp with {0} day(s) ago to compare : {1}'.format(days,days_ago))
     #CREATE AMI_TAGS DICTIONARY
     ami_tags = {}
-    #SEARCH AMI'S AND CHECK IF IT IS OLD ENOUGH IF IT IS, DELETES IT.
+    #SEARCH AMI'S AND CHECK IF IT IS OLD ENOUGH IF IT IS, DELETES IT.s
+    snapshots = ec2.describe_snapshots(MaxResults=1000,OwnerIds=[account_id])['Snapshots']
     for ami in amis['Images']:
         ami_tags.update( { ami['ImageId'] : tag['Value'] for tag in ami['Tags'] if tag['Key'] == 'CreationDate' } )
         #PRINT AMI_TAGS
